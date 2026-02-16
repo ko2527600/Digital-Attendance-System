@@ -1,0 +1,26 @@
+# Compiled binaries
+*.exe
+*.o
+*.obj
+*.out
+
+# IDE and editor files
+.vscode/
+.vs/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# Data files (generated at runtime)
+students.txt
+session_*.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build directories
+build/
+dist/
+bin/
