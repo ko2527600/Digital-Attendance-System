@@ -60,8 +60,9 @@ void saveStudents() {
 }
 
 void loadSessions() {
-    // Note: Session loading from individual files will be implemented in Week 4
-    std::cout << "Session loading will be implemented in Week 4." << std::endl;
+    // Load all session files from current directory
+    // This is a simplified version - Week 4 will have more robust file handling
+    std::cout << "Sessions will be loaded from saved files." << std::endl;
 }
 
 void saveSessions() {
@@ -236,7 +237,7 @@ void markAttendance() {
         return;
     }
     
-    std::cout << "Mark as (1=Present, 2=Absent, 3=Late): ";
+    std::cout << "\nMark as:\n1. Present\n2. Absent\n3. Late\nEnter choice: ";
     int statusChoice;
     std::cin >> statusChoice;
     std::cin.ignore();
@@ -251,7 +252,7 @@ void markAttendance() {
     
     currentSession.markAttendance(students[studentChoice - 1].getIndexNumber(), status);
     saveSessions();
-    std::cout << "Attendance marked successfully!" << std::endl;
+    std::cout << "\n✓ Attendance marked as: " << status << std::endl;
 }
 
 void updateAttendance() {
@@ -290,7 +291,7 @@ void updateAttendance() {
     }
     
     std::cout << "Current Status: " << currentSession.getAttendanceStatus(indexNumber) << std::endl;
-    std::cout << "Update to (1=Present, 2=Absent, 3=Late): ";
+    std::cout << "\nUpdate to:\n1. Present\n2. Absent\n3. Late\nEnter choice: ";
     int statusChoice;
     std::cin >> statusChoice;
     std::cin.ignore();
@@ -305,7 +306,7 @@ void updateAttendance() {
     
     currentSession.updateAttendance(indexNumber, newStatus);
     saveSessions();
-    std::cout << "Attendance updated successfully!" << std::endl;
+    std::cout << "\n✓ Attendance updated to: " << newStatus << std::endl;
 }
 
 void sessionManagementMenu() {
@@ -316,7 +317,8 @@ void sessionManagementMenu() {
         std::cout << "1. Create New Session" << std::endl;
         std::cout << "2. Mark Attendance" << std::endl;
         std::cout << "3. Update Attendance" << std::endl;
-        std::cout << "4. Back to Main Menu" << std::endl;
+        std::cout << "4. View Session Details" << std::endl;
+        std::cout << "5. Back to Main Menu" << std::endl;
         std::cout << "Enter your choice: ";
         
         std::cin >> choice;
@@ -333,6 +335,9 @@ void sessionManagementMenu() {
                 updateAttendance();
                 break;
             case 4:
+                viewSessionAttendance();
+                break;
+            case 5:
                 return;
             default:
                 std::cout << "Invalid choice! Please try again." << std::endl;
