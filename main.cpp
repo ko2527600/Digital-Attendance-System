@@ -61,15 +61,23 @@ void saveStudents() {
 
 void loadSessions() {
     // Load all session files from current directory
-    // This is a simplified version - Week 4 will have more robust file handling
-    std::cout << "Sessions will be loaded from saved files." << std::endl;
+    // Sessions are stored as session_COURSECODE_DATE.txt
+    std::string line;
+    std::ifstream testFile("session_*.txt");
+    
+    // For now, sessions are loaded from memory during runtime
+    // Full file loading will be in Week 4
 }
 
 void saveSessions() {
     for (const auto& session : sessions) {
         std::ofstream file(session.getFileName());
-        file << session.toFileFormat();
-        file.close();
+        if (file.is_open()) {
+            file << session.toFileFormat();
+            file.close();
+        } else {
+            std::cerr << "Error: Could not save session to file!" << std::endl;
+        }
     }
 }
 
@@ -79,23 +87,46 @@ void addStudent() {
     std::string idx, name;
     
     std::cout << "\n===== ADD NEW STUDENT =====" << std::endl;
-    std::cout << "Enter Index Number: ";
-    std::getline(std::cin, idx);
     
-    // Check if student already exists
-    for (const auto& student : students) {
-        if (student.getIndexNumber() == idx) {
-            std::cout << "Error: Student with this index already exists!" << std::endl;
-            return;
+    // Validate index number
+    while (true) {
+        std::cout << "Enter Index Number: ";
+        std::getline(std::cin, idx);
+        
+        // Check if empty
+        if (idx.empty()) {
+            std::cout << "Error: Index number cannot be empty!" << std::endl;
+            continue;
         }
+        
+        // Check if already exists
+        bool exists = false;
+        for (const auto& student : students) {
+            if (student.getIndexNumber() == idx) {
+                std::cout << "Error: Student with this index already exists!" << std::endl;
+                exists = true;
+                break;
+            }
+        }
+        
+        if (!exists) break;
     }
     
-    std::cout << "Enter Student Name: ";
-    std::getline(std::cin, name);
+    // Validate name
+    while (true) {
+        std::cout << "Enter Student Name: ";
+        std::getline(std::cin, name);
+        
+        if (name.empty()) {
+            std::cout << "Error: Name cannot be empty!" << std::endl;
+            continue;
+        }
+        break;
+    }
     
     students.push_back(Student(idx, name));
     saveStudents();
-    std::cout << "Student added successfully!" << std::endl;
+    std::cout << "\n✓ Student added successfully!" << std::endl;
 }
 
 void viewAllStudents() {
@@ -170,24 +201,73 @@ void createSession() {
     int duration;
     
     std::cout << "\n===== CREATE NEW SESSION =====" << std::endl;
-    std::cout << "Enter Course Code (e.g., EE201): ";
-    std::getline(std::cin, code);
     
-    std::cout << "Enter Date (YYYY-MM-DD): ";
-    std::getline(std::cin, date);
+    // Validate course code
+    while (true) {
+        std::cout << "Enter Course Code (e.g., EE201): ";
+        std::getline(std::cin, code);
+        
+        if (code.empty()) {
+            std::cout << "Error: Course code cannot be empty!" << std::endl;
+            continue;
+        }
+        break;
+    }
     
-    std::cout << "Enter Start Time (HH:MM): ";
-    std::getline(std::cin, time);
+    // Validate date
+    while (true) {
+        std::cout << "Enter Date (YYYY-MM-DD): ";
+        std::getline(std::cin, date);
+        
+        if (date.empty()) {
+            std::cout << "Error: Date cannot be empty!" << std::endl;
+            continue;
+        }
+        
+        // Basic date format validation
+        if (date.length() != 10 || date[4] != '-' || date[7] != '-') {
+            std::cout << "Error: Invalid date format! Use YYYY-MM-DD" << std::endl;
+            continue;
+        }
+        break;
+    }
     
-    std::cout << "Enter Duration (minutes): ";
-    std::cin >> duration;
-    std::cin.ignore();
+    // Validate time
+    while (true) {
+        std::cout << "Enter Start Time (HH:MM): ";
+        std::getline(std::cin, time);
+        
+        if (time.empty()) {
+            std::cout << "Error: Time cannot be empty!" << std::endl;
+            continue;
+        }
+        
+        // Basic time format validation
+        if (time.length() != 5 || time[2] != ':') {
+            std::cout << "Error: Invalid time format! Use HH:MM" << std::endl;
+            continue;
+        }
+        break;
+    }
+    
+    // Validate duration
+    while (true) {
+        std::cout << "Enter Duration (minutes): ";
+        std::cin >> duration;
+        std::cin.ignore();
+        
+        if (duration <= 0) {
+            std::cout << "Error: Duration must be greater than 0!" << std::endl;
+            continue;
+        }
+        break;
+    }
     
     AttendanceSession session(code, date, time, duration);
     sessions.push_back(session);
     saveSessions();
     
-    std::cout << "Session created successfully!" << std::endl;
+    std::cout << "\n✓ Session created successfully!" << std::endl;
 }
 
 void markAttendance() {
@@ -367,7 +447,7 @@ void viewSessionAttendance() {
     std::cin.ignore();
     
     if (choice < 1 || choice > sessions.size()) {
-        std::cout << "Invalid session!" << std::endl;
+        std::cout << "Error: Invalid session selection!" << std::endl;
         return;
     }
     
@@ -395,11 +475,32 @@ void viewAttendanceSummary() {
     std::cin.ignore();
     
     if (choice < 1 || choice > sessions.size()) {
-        std::cout << "Invalid session!" << std::endl;
+        std::cout << "Error: Invalid session selection!" << std::endl;
         return;
     }
     
     sessions[choice - 1].displaySummary();
+}
+
+void viewAllSessions() {
+    if (sessions.empty()) {
+        std::cout << "\nNo sessions created yet!" << std::endl;
+        return;
+    }
+    
+    std::cout << "\n===== ALL SESSIONS =====" << std::endl;
+    std::cout << std::left << std::setw(15) << "Course Code" 
+              << std::setw(15) << "Date" 
+              << std::setw(12) << "Start Time" 
+              << std::setw(12) << "Duration" << std::endl;
+    std::cout << std::string(54, '-') << std::endl;
+    
+    for (const auto& session : sessions) {
+        std::cout << std::left << std::setw(15) << session.getCourseCode()
+                  << std::setw(15) << session.getDate()
+                  << std::setw(12) << session.getStartTime()
+                  << std::setw(12) << (std::to_string(session.getDuration()) + " min") << std::endl;
+    }
 }
 
 void reportsMenu() {
@@ -409,7 +510,8 @@ void reportsMenu() {
         std::cout << "\n===== REPORTS AND SUMMARY =====" << std::endl;
         std::cout << "1. View Session Attendance List" << std::endl;
         std::cout << "2. View Attendance Summary" << std::endl;
-        std::cout << "3. Back to Main Menu" << std::endl;
+        std::cout << "3. View All Sessions" << std::endl;
+        std::cout << "4. Back to Main Menu" << std::endl;
         std::cout << "Enter your choice: ";
         
         std::cin >> choice;
@@ -423,6 +525,9 @@ void reportsMenu() {
                 viewAttendanceSummary();
                 break;
             case 3:
+                viewAllSessions();
+                break;
+            case 4:
                 return;
             default:
                 std::cout << "Invalid choice! Please try again." << std::endl;
